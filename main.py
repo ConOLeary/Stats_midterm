@@ -30,29 +30,28 @@ for i in range(len(user0data)):
     temp= user0data[i]
     if(temp > longestWait):
         longestWait= user0data[i]
-        # print(longestWait)
 
 # initialise wait times frequency array, and prob of time array
 timesWaitedFreq= []
 probOfTime= []
-for i in range(len(user0data)):
+for i in range(longestWait + 1):
     timesWaitedFreq.append(0)
     probOfTime.append(0)
 
 # populate wait times frequency array
 i= LINE_ONE_ELEMS
-for i in range(len(user0data)):
-    temp= user0data[i]
-    timesWaitedFreq[temp]+= 1
+for val in user0data:
+    timesWaitedFreq[val]+= 1
 
 # calculate probabilities from freqs
-for i in range(len(user0data)):
+for i in range(longestWait + 1):
     probOfTime[i]= (timesWaitedFreq[i] / len(user0data)) * MAKE_PERCENT
 
 # load bar set for histo
 histoBarSet= [(0,0,0)] * (len(user0data))
-for i in range(len(user0data)):
+for i in range(len(probOfTime)):
     histoBarSet[i]= (probOfTime[i], i, i+1)
+    # print("height: ",probOfTime[i],". x(",i,",",i+1,").")
 
 # make histo
 pmf= pygal.Histogram(title=u'PMF | x-axis: time taken (ms), y-axis: probability (%)')
@@ -78,26 +77,20 @@ def getValsInIntrvl(vals, medianPos, intrvl):
     j= medianPos # j is right pointer array offset
     intrvlSize= round((len(vals) / 100) * intrvl) - 1
     while(len(valsIn) < intrvlSize):
-        #print("length: ",len(valsIn))
-        #print("                                (i,j): ",i,",",j)
         if(i > 0):
             leftValCost= vals[i] - vals[i - 1]
-            #print("leftValCost: ",leftValCost)
         else:
             leftValCost= A_LARGE_NUMBER
         if(j < (len(vals) - 1)):
             rightValCost= vals[j + 1] - vals[j]
-            #print("rightValCost: ",rightValCost)
         else:
             rightValCost= A_LARGE_NUMBER
         if(leftValCost > rightValCost): # expand span to the right
             j+= 1
             valsIn.append(vals[j])
-            #print("value added: ", vals[j])
         else: # expand span to the left
             i-= 1
             valsIn.append(vals[i])
-            #print("value added: ", vals[i])
     return valsIn
 
 sampleMeans= []
@@ -108,26 +101,22 @@ for i in range(BOOTSTRAP_AMOUNT_SAMPLES):
         sampleSum+= user0data[random]
         # print(random)
     sampleMeans.append(sampleSum / BOOTSTRAP_SAMPLE_SIZE)
-
 sampleMeans= sort(sampleMeans)
-
-for i in range(len(sampleMeans)):
-    print(sampleMeans[i])
-
+'''for i in range(len(sampleMeans)):
+    print(sampleMeans[i])'''
 medianOfMeans= statistics.median(sampleMeans)
 i= 0
 while(medianOfMeans > sampleMeans[i]):
     i+= 1
-medianOfMeans= sampleMeans[i]
-print("medianOfMeans: ",medianOfMeans)
+# print("medianOfMeans: ",medianOfMeans)
 nintyFiveIntrvl= getValsInIntrvl(sampleMeans, i, CONFIDNC_INTRVL_2)
-print("------------------------------")
+# print("------------------------------")
 for val in nintyFiveIntrvl:
     print(val)
 fifteenIntrvl= getValsInIntrvl(sampleMeans, i, CONFIDNC_INTRVL_1)
-print("------------------------------")
+'''print("------------------------------")
 for val in fifteenIntrvl:
-    print(val)
+    print(val)'''
 
-
+# 
 
